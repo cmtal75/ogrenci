@@ -13,14 +13,34 @@
     <button onclick="formYonlendir()">Gönder</button>
 
     <script>
-        // Öğrenci bilgileri (veritabanı yerine basit bir nesne kullanıyoruz)
-        const ogrenciBilgileri = {
-            "12345": { ad: "Ahmet Yılmaz", sinif: "10-A" },
-            "67890": { ad: "Zeynep Kaya", sinif: "11-B" },
-            "54321": { ad: "Mehmet Demir", sinif: "9-C" }
-        };
+        let ogrenciBilgileri = {};
 
-        function formYonlendir() {
+        // Google Sheets'ten veriyi çek
+        async function ogrenciListesiniYukle() {
+            let sheetURL = "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/gviz/tq?tqx=out:json";
+
+            try {
+                let response = await fetch(sheetURL);
+                let text = await response.text();
+                
+                // Google Sheets JSON formatında döndüğünden gereksiz kısımları temizle
+                let jsonData = JSON.parse(text.substring(47, text.length - 2));
+                
+                // Verileri öğrenciBilgileri nesnesine aktar
+                jsonData.table.rows.forEach(row => {
+                    let ogrenciNo = row.c[0].v.toString();
+                    let ad = row.c[1].v;
+                    let sinif = row.c[2].v;
+                    ogrenciBilgileri[ogrenciNo] = { ad, sinif };
+                });
+
+                console.log("Öğrenci listesi yüklendi:", ogrenciBilgileri);
+            } catch (error) {
+                console.error("Google Sheets verisi çekilemedi!", error);
+            }
+        }
+
+        async function formYonlendir() {
             let ogrenciNo = document.getElementById("ogrenciNo").value.trim();
             let ogrenci = ogrenciBilgileri[ogrenciNo];
 
@@ -30,15 +50,17 @@
             }
 
             // Google Form'un önceden doldurulmuş URL'sini oluştur
-//https://docs.google.com/forms/d/e/1FAIpQLSe89-9F7I-ThCZDU_rLoW9wGtnNNXXpNz_4l0YfGQLzibKyHw/viewform?usp=pp_url&entry.2121926657=111&entry.2116005072=mahmut&entry.1635123932=9a
+            //https://docs.google.com/forms/d/e/1FAIpQLSe89-9F7I-ThCZDU_rLoW9wGtnNNXXpNz_4l0YfGQLzibKyHw/viewform?usp=pp_url&entry.2121926657=111&entry.2116005072=mahmut&entry.1635123932=9a
             let googleFormLink = `https://docs.google.com/forms/d/e/1FAIpQLSe89-9F7I-ThCZDU_rLoW9wGtnNNXXpNz_4l0YfGQLzibKyHw/viewform?` +
                 `entry.2121926657=${encodeURIComponent(ogrenciNo)}` +
                 `&entry.2116005072=${encodeURIComponent(ogrenci.ad)}` +
                 `&entry.1635123932=${encodeURIComponent(ogrenci.sinif)}`;
-
             // Kullanıcıyı Google Form'a yönlendir
             window.location.href = googleFormLink;
         }
+
+        // Sayfa yüklendiğinde öğrenci listesini çek
+        ogrenciListesiniYukle();
     </script>
 
 </body>
