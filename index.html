@@ -3,14 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Öğrenci Form Yönlendirme</title>
+    <title>Öğrenci Formu</title>
+    <style>
+        /* Sayfa düzeni */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #d3d3d3; /* Gri tonlu arka plan */
+        }
+
+        /* Üstteki logo */
+        .logo-container {
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .logo-container img {
+            max-width: 80%;
+            height: auto;
+        }
+
+        /* Form kutusu */
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            margin-top: 20px;
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
 
-    <h2>Öğrenci Formu</h2>
-    <label for="ogrenciNo">Öğrenci Numarası:</label>
-    <input type="text" id="ogrenciNo">
-    <button onclick="formYonlendir()">Gönder</button>
+    <!-- Üstteki Logo -->
+    <div class="logo-container">
+        <img src="https://drive.google.com/file/d/1c7gvhi_MLctActpmtIIiiJPSB9HA3GAW/view?usp=sharing" alt="Okul Logosu">
+    </div>
+
+    <!-- Form Alanı -->
+    <div class="form-container">
+        <h2>Öğrenci Formu</h2>
+        <label for="ogrenciNo">Öğrenci Numarası:</label>
+        <input type="text" id="ogrenciNo">
+        <button onclick="formYonlendir()">Gönder</button>
+    </div>
 
     <script>
         let ogrenciBilgileri = {};
