@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Öğrenci Form Yönlendirme</title>
+</head>
+<body>
+
+    <h2>Öğrenci Formu</h2>
+    <label for="ogrenciNo">Öğrenci Numarası:</label>
+    <input type="text" id="ogrenciNo">
+    <button onclick="formYonlendir()">Gönder</button>
+
+    <script>
+        // Öğrenci bilgileri (veritabanı yerine basit bir nesne kullanıyoruz)
+        const ogrenciBilgileri = {
+            "12345": { ad: "Ahmet Yılmaz", sinif: "10-A" },
+            "67890": { ad: "Zeynep Kaya", sinif: "11-B" },
+            "54321": { ad: "Mehmet Demir", sinif: "9-C" }
+        };
+
+        function formYonlendir() {
+            let ogrenciNo = document.getElementById("ogrenciNo").value.trim();
+            let ogrenci = ogrenciBilgileri[ogrenciNo];
+
+            if (!ogrenci) {
+                alert("Öğrenci bulunamadı! Lütfen geçerli bir öğrenci numarası girin.");
+                return;
+            }
+
+            // Google Form'un önceden doldurulmuş URL'sini oluştur
+//https://docs.google.com/forms/d/e/1FAIpQLSe89-9F7I-ThCZDU_rLoW9wGtnNNXXpNz_4l0YfGQLzibKyHw/viewform?usp=pp_url&entry.2121926657=111&entry.2116005072=mahmut&entry.1635123932=9a
+            let googleFormLink = `https://docs.google.com/forms/d/e/1FAIpQLSe89-9F7I-ThCZDU_rLoW9wGtnNNXXpNz_4l0YfGQLzibKyHw/viewform?` +
+                `entry.2121926657=${encodeURIComponent(ogrenciNo)}` +
+                `&entry.2116005072=${encodeURIComponent(ogrenci.ad)}` +
+                `&entry.1635123932=${encodeURIComponent(ogrenci.sinif)}`;
+
+            // Kullanıcıyı Google Form'a yönlendir
+            window.location.href = googleFormLink;
+        }
+    </script>
+
+</body>
+</html>
