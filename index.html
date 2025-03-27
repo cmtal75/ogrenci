@@ -78,58 +78,26 @@
         <button onclick="formYonlendir()">Gönder</button>
     </div>
 
+   <select id="ogrenciSelect">
+        <option value="">Öğrenci Seç</option>
+    </select>
+    <button onclick="formYonlendir()">Formu Aç</button>
+
     <script>
-        <script>
-    async function ogrenciListesiniYukle() {
+        let ogrenciBilgileri = {}; // Öğrenci bilgilerini saklamak için boş bir obje
+
+        async function ogrenciListesiniYukle() {
         let apiURL = "https://script.google.com/macros/s/AKfycbzR2GdISqHMAdybDIE5fxSPHHp1qG7ah-fVjDJHnxjt0x0uRI4SHbCTLRSXkMKznHc/exec"; // Apps Script URL'sini buraya koy
-        try {
-            let response = await fetch(apiURL);
-            let data = await response.json();
-
-            console.log(data); // Test için konsolda gösterelim
-
-            let selectBox = document.getElementById("ogrenciSelect");
-            data.forEach(ogrenci => {
-                let option = document.createElement("option");
-                option.value = ogrenci.ogrenci_no;
-                option.textContent = `${ogrenci.ogrenci_no} - ${ogrenci.ad_soyad}`;
-                selectBox.appendChild(option);
-            });
-        } catch (error) {
-            console.error("Veri çekme hatası:", error);
-        }
-    }
-
-    window.onload = ogrenciListesiniYukle;
-
-
-
-        async function formYonlendir() {
-            let ogrenciNo = document.getElementById("ogrenciNo").value.trim();
-            let ogrenci = ogrenciBilgileri[ogrenciNo];
-
-            if (!ogrenci) {
-                alert("Öğrenci bulunamadı! Lütfen geçerli bir öğrenci numarası girin.");
-                return;
-            }
-
-            // Google Form'un önceden doldurulmuş URL'sini oluştur
-            //https://docs.google.com/forms/d/e/1FAIpQLSe89-9F7I-ThCZDU_rLoW9wGtnNNXXpNz_4l0YfGQLzibKyHw/viewform?usp=pp_url&entry.2121926657=111&entry.2116005072=mahmut&entry.1635123932=9a
-            let googleFormLink = `https://docs.google.com/forms/d/e/1FAIpQLSe89-9F7I-ThCZDU_rLoW9wGtnNNXXpNz_4l0YfGQLzibKyHw/viewform?` +
+                  let googleFormLink = `https://docs.google.com/forms/d/e/1FAIpQLSe89-9F7I-ThCZDU_rLoW9wGtnNNXXpNz_4l0YfGQLzibKyHw/viewform?` +
                 `entry.2121926657=${encodeURIComponent(ogrenciNo)}` +
                 `&entry.2116005072=${encodeURIComponent(ogrenci.ad)}` +
                 `&entry.1635123932=${encodeURIComponent(ogrenci.sinif)}`;
             // Kullanıcıyı Google Form'a yönlendir
             window.location.href = googleFormLink;
         }
-
-        // Sayfa yüklendiğinde öğrenci listesini çek
-        ogrenciListesiniYukle();
+ window.onload = ogrenciListesiniYukle;
     </script>
-<select id="ogrenciSelect">
-    <option>Öğrenci Seç</option>
-</select>
-
+     
     
 </body>
 </html>
