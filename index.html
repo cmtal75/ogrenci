@@ -79,32 +79,30 @@
     </div>
 
     <script>
-        let ogrenciBilgileri = {};
+        <script>
+    async function ogrenciListesiniYukle() {
+        let apiURL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"; // Apps Script URL'sini buraya koy
+        try {
+            let response = await fetch(apiURL);
+            let data = await response.json();
 
-        // Google Sheets'ten veriyi çek
-        async function ogrenciListesiniYukle() {
-            let sheetURL = "https://docs.google.com/spreadsheets/d/17DTZutefGa5-hnsEdf_WbY1sJt2iZpKmHkTsD606rj8/gviz/tq?tqx=out:json";
+            console.log(data); // Test için konsolda gösterelim
 
-            try {
-                let response = await fetch(sheetURL);
-                let text = await response.text();
-                
-                // Google Sheets JSON formatında döndüğünden gereksiz kısımları temizle
-                let jsonData = JSON.parse(text.substring(47, text.length - 2));
-                
-                // Verileri öğrenciBilgileri nesnesine aktar
-                jsonData.table.rows.forEach(row => {
-                    let ogrenciNo = row.c[0].v.toString();
-                    let ad = row.c[1].v;
-                    let sinif = row.c[2].v;
-                    ogrenciBilgileri[ogrenciNo] = { ad, sinif };
-                });
-
-                console.log("Öğrenci listesi yüklendi:", ogrenciBilgileri);
-            } catch (error) {
-                console.error("Google Sheets verisi çekilemedi!", error);
-            }
+            let selectBox = document.getElementById("ogrenciSelect");
+            data.forEach(ogrenci => {
+                let option = document.createElement("option");
+                option.value = ogrenci.ogrenci_no;
+                option.textContent = `${ogrenci.ogrenci_no} - ${ogrenci.ad_soyad}`;
+                selectBox.appendChild(option);
+            });
+        } catch (error) {
+            console.error("Veri çekme hatası:", error);
         }
+    }
+
+    window.onload = ogrenciListesiniYukle;
+
+
 
         async function formYonlendir() {
             let ogrenciNo = document.getElementById("ogrenciNo").value.trim();
@@ -128,6 +126,10 @@
         // Sayfa yüklendiğinde öğrenci listesini çek
         ogrenciListesiniYukle();
     </script>
+<select id="ogrenciSelect">
+    <option>Öğrenci Seç</option>
+</select>
 
+    
 </body>
 </html>
