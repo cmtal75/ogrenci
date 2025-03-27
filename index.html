@@ -77,55 +77,57 @@
         <input type="text" id="ogrenciNo">
         <button onclick="formYonlendir()">Gönder</button>
     </div>
-    <script>
 
     <script>
-        let ogrenciBilgileri = {}; // Öğrenci bilgilerini saklamak için boş bir obje
+        let ogrenciBilgileri = {};
 
+        // Google Sheets'ten veriyi çek
         async function ogrenciListesiniYukle() {
-            let apiURL = "https://script.google.com/macros/s/AKfycbzR2GdISqHMAdybDIE5fxSPHHp1qG7ah-fVjDJHnxjt0x0uRI4SHbCTLRSXkMKznHc/exec"; // Apps Script URL
+            let sheetURL = "https://docs.google.com/spreadsheets/d/17DTZutefGa5-hnsEdf_WbY1sJt2iZpKmHkTsD606rj8/gviz/tq?tqx=out:json";
+
             try {
-                let response = await fetch(apiURL);
-                let data = await response.json();
-
-                console.log(data); // Test için konsola yaz
-
-                // JSON verisini obje içine kaydet
-                data.forEach(ogrenci => {
-                    ogrenciBilgileri[ogrenci.ogrenci_no] = {
-                        ad: ogrenci.ad_soyad,
-                        sinif: ogrenci.sinif
-                    };
+                let response = await fetch(sheetURL);
+                let text = await response.text();
+                
+                // Google Sheets JSON formatında döndüğünden gereksiz kısımları temizle
+                let jsonData = JSON.parse(text.substring(47, text.length - 2));
+                
+                // Verileri öğrenciBilgileri nesnesine aktar
+                jsonData.table.rows.forEach(row => {
+                    let ogrenciNo = row.c[0].v.toString();
+                    let ad = row.c[1].v;
+                    let sinif = row.c[2].v;
+                    ogrenciBilgileri[ogrenciNo] = { ad, sinif };
                 });
+
+                console.log("Öğrenci listesi yüklendi:", ogrenciBilgileri);
             } catch (error) {
-                console.error("Veri çekme hatası:", error);
+                console.error("Google Sheets verisi çekilemedi!", error);
             }
         }
 
         async function formYonlendir() {
             let ogrenciNo = document.getElementById("ogrenciNo").value.trim();
+            let ogrenci = ogrenciBilgileri[ogrenciNo];
 
-            if (!ogrenciNo || !ogrenciBilgileri[ogrenciNo]) {
-                alert("Lütfen geçerli bir öğrenci numarası girin!");
+            if (!ogrenci) {
+                alert("Öğrenci bulunamadı! Lütfen geçerli bir öğrenci numarası girin.");
                 return;
             }
 
-            let ogrenci = ogrenciBilgileri[ogrenciNo];
-
-             let apiURL = "https://script.google.com/macros/s/AKfycbzR2GdISqHMAdybDIE5fxSPHHp1qG7ah-fVjDJHnxjt0x0uRI4SHbCTLRSXkMKznHc/exec"; // Apps Script URL'sini buraya koy
-                  let googleFormLink = `https://docs.google.com/forms/d/e/1FAIpQLSe89-9F7I-ThCZDU_rLoW9wGtnNNXXpNz_4l0YfGQLzibKyHw/viewform?` +
+            // Google Form'un önceden doldurulmuş URL'sini oluştur
+            //https://docs.google.com/forms/d/e/1FAIpQLSe89-9F7I-ThCZDU_rLoW9wGtnNNXXpNz_4l0YfGQLzibKyHw/viewform?usp=pp_url&entry.2121926657=111&entry.2116005072=mahmut&entry.1635123932=9a
+            let googleFormLink = `https://docs.google.com/forms/d/e/1FAIpQLSe89-9F7I-ThCZDU_rLoW9wGtnNNXXpNz_4l0YfGQLzibKyHw/viewform?` +
                 `entry.2121926657=${encodeURIComponent(ogrenciNo)}` +
                 `&entry.2116005072=${encodeURIComponent(ogrenci.ad)}` +
                 `&entry.1635123932=${encodeURIComponent(ogrenci.sinif)}`;
-
             // Kullanıcıyı Google Form'a yönlendir
             window.location.href = googleFormLink;
         }
 
-        window.onload = ogrenciListesiniYukle;
+        // Sayfa yüklendiğinde öğrenci listesini çek
+        ogrenciListesiniYukle();
     </script>
 
 </body>
 </html>
-
-
