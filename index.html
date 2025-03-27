@@ -77,27 +77,55 @@
         <input type="text" id="ogrenciNo">
         <button onclick="formYonlendir()">Gönder</button>
     </div>
-
-   <select id="ogrenciSelect">
-        <option value="">Öğrenci Seç</option>
-    </select>
-    <button onclick="formYonlendir()">Formu Aç</button>
+    <script>
 
     <script>
         let ogrenciBilgileri = {}; // Öğrenci bilgilerini saklamak için boş bir obje
 
         async function ogrenciListesiniYukle() {
-        let apiURL = "https://script.google.com/macros/s/AKfycbzR2GdISqHMAdybDIE5fxSPHHp1qG7ah-fVjDJHnxjt0x0uRI4SHbCTLRSXkMKznHc/exec"; // Apps Script URL'sini buraya koy
+            let apiURL = "https://script.google.com/macros/s/AKfycbzR2GdISqHMAdybDIE5fxSPHHp1qG7ah-fVjDJHnxjt0x0uRI4SHbCTLRSXkMKznHc/exec"; // Apps Script URL
+            try {
+                let response = await fetch(apiURL);
+                let data = await response.json();
+
+                console.log(data); // Test için konsola yaz
+
+                // JSON verisini obje içine kaydet
+                data.forEach(ogrenci => {
+                    ogrenciBilgileri[ogrenci.ogrenci_no] = {
+                        ad: ogrenci.ad_soyad,
+                        sinif: ogrenci.sinif
+                    };
+                });
+            } catch (error) {
+                console.error("Veri çekme hatası:", error);
+            }
+        }
+
+        async function formYonlendir() {
+            let ogrenciNo = document.getElementById("ogrenciNo").value.trim();
+
+            if (!ogrenciNo || !ogrenciBilgileri[ogrenciNo]) {
+                alert("Lütfen geçerli bir öğrenci numarası girin!");
+                return;
+            }
+
+            let ogrenci = ogrenciBilgileri[ogrenciNo];
+
+             let apiURL = "https://script.google.com/macros/s/AKfycbzR2GdISqHMAdybDIE5fxSPHHp1qG7ah-fVjDJHnxjt0x0uRI4SHbCTLRSXkMKznHc/exec"; // Apps Script URL'sini buraya koy
                   let googleFormLink = `https://docs.google.com/forms/d/e/1FAIpQLSe89-9F7I-ThCZDU_rLoW9wGtnNNXXpNz_4l0YfGQLzibKyHw/viewform?` +
                 `entry.2121926657=${encodeURIComponent(ogrenciNo)}` +
                 `&entry.2116005072=${encodeURIComponent(ogrenci.ad)}` +
                 `&entry.1635123932=${encodeURIComponent(ogrenci.sinif)}`;
+
             // Kullanıcıyı Google Form'a yönlendir
             window.location.href = googleFormLink;
         }
- window.onload = ogrenciListesiniYukle;
+
+        window.onload = ogrenciListesiniYukle;
     </script>
-     
-    
+
 </body>
 </html>
+
+
