@@ -83,23 +83,29 @@
 
         // Google Sheets'ten veriyi çek
         async function ogrenciListesiniYukle() {
-            const apiURL = "https://script.google.com/macros/s/AKfycbyG0-R2njG5kxiy2fzB-0bl_5AP-uKL-SgWfGJehaWNdkAFrYi-6gnr3AQaP4TY15s/exec"; // Apps Script URL
+            let sheetURL = "https://docs.google.com/spreadsheets/d/17DTZutefGa5-hnsEdf_WbY1sJt2iZpKmHkTsD606rj8/gviz/tq?tqx=out:json";
+
             try {
-                let response = await fetch(apiURL);
-                let data = await response.json();
-                data.forEach(item => {
-                    ogrenciBilgileri[item.ogrenci_no] = {
-                        ad: item.ad_soyad,
-                        sinif: item.sinif
-                    };
+                let response = await fetch(sheetURL);
+                let text = await response.text();
+                
+                // Google Sheets JSON formatında döndüğünden gereksiz kısımları temizle
+                let jsonData = JSON.parse(text.substring(47, text.length - 2));
+                
+                // Verileri öğrenciBilgileri nesnesine aktar
+                jsonData.table.rows.forEach(row => {
+                    let ogrenciNo = row.c[0].v.toString();
+                    let ad = row.c[1].v;
+                    let sinif = row.c[2].v;
+                    ogrenciBilgileri[ogrenciNo] = { ad, sinif };
                 });
-                console.log("Veriler yüklendi:", ogrenciBilgileri);
+
+                console.log("Öğrenci listesi yüklendi:", ogrenciBilgileri);
             } catch (error) {
-                alert("Veri yüklenemedi! Giriş izniniz olmayabilir.");
-                console.error("Hata:", error);
+                console.error("Google Sheets verisi çekilemedi!", error);
             }
         }
-           
+
         async function formYonlendir() {
             let ogrenciNo = document.getElementById("ogrenciNo").value.trim();
             let ogrenci = ogrenciBilgileri[ogrenciNo];
@@ -120,7 +126,7 @@
         }
 
         // Sayfa yüklendiğinde öğrenci listesini çek
-        window.onload = ogrenciListesiniYukle;
+        ogrenciListesiniYukle();
     </script>
 
 </body>
