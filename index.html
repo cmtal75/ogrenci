@@ -62,7 +62,7 @@
             if(statusDiv) { statusDiv.textContent = "Kontrol ediliyor..."; statusDiv.style.color = 'blue'; }
 
             // API URL'sinin yer tutucu olup olmadığını kontrol et (ÖNEMLİ GÜVENLİK KONTROLÜ)
-            if (APPS_SCRIPT_API_URL === "https://script.google.com/macros/s/AKfycbzq4ptzYScXQ6UFt5xKcjS6dZeAvFqP29cWpIK-acas9uoYfm_zD7nr8kf_ZamDt8E/exec" || !APPS_SCRIPT_API_URL) {
+           if (APPS_SCRIPT_API_URL === "BURAYA_APPS_SCRIPT_API_URL_YAPIŞTIRIN" || !APPS_SCRIPT_API_URL) {
                  if(statusDiv) { statusDiv.textContent = "Hata: API URL'si ayarlanmamış!"; statusDiv.style.color = 'red'; }
                  if(submitButton) submitButton.disabled = false;
                  console.error("Hata: APPS_SCRIPT_API_URL ayarlanmamış.");
