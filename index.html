@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Öğrenci Takip Sistemi (TAKSİ)</title>
     <style>
-        /* CSS Stilleriniz burada (değişiklik yok) */
-        /* ... */
+        /* Sayfa düzeni */
         body { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #d3d3d3; font-family: sans-serif; }
+        /* Üstteki logo */
         .logo-container { width: 100%; text-align: center; margin-top: 20px; margin-bottom: 20px; }
         .logo-container img { max-width: 80%; height: auto; }
+        /* Form kutusu */
         .form-container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); text-align: center; width: 90%; max-width: 400px; }
         h3 { margin-top: 0; color: #333; }
         label { display: block; margin-bottom: 5px; color: #555; font-weight: bold; }
@@ -18,10 +19,10 @@
         button:hover { background-color: #0056b3; }
         button:disabled { background-color: #cccccc; cursor: not-allowed; }
         #status { margin-top: 15px; min-height: 20px; font-weight: bold; }
-        /* ... */
     </style>
 </head>
 <body>
+
     <div class="logo-container">
         <img src="https://raw.githubusercontent.com/cmtal75/ogrenci/main/11.png" alt="Okul Logosu">
     </div>
@@ -36,11 +37,11 @@
 
     <script>
         // --- Ayarlar ---
-        // API URL'niz burada kalacak
-        const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbwyQxQGEzOQR01zN3NmFrFVtQ6UvF9GKPax947QFPXFPjEDbD8Df8ytJYJi7JmE1gxv/exec"; // Önceki adımdaki URL
+        // !!!!!!! KENDİ APPS SCRIPT WEB UYGULAMASI URL'NİZİ BURAYA YAPIŞTIRIN !!!!!!!
+        const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbwyQxQGEzOQR01zN3NmFrFVtQ6UvF9GKPax947QFPXFPjEDbD8Df8ytJYJi7JmE1gxv/exec";
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
-        // HTML Elemanları (değişiklik yok)
+        // HTML Elemanları
         const ogrenciNoInput = document.getElementById("ogrenciNo");
         const submitButton = document.getElementById("submitButton");
         const statusDiv = document.getElementById("status");
@@ -58,25 +59,39 @@
             if(submitButton) submitButton.disabled = true;
             if(statusDiv) { statusDiv.textContent = "Kontrol ediliyor..."; statusDiv.style.color = 'blue'; }
 
+            // API URL'sinin yer tutucu olup olmadığını kontrol et
+            if (APPS_SCRIPT_API_URL === "BURAYA_APPS_SCRIPT_API_URL_YAPIŞTIRIN") {
+                 if(statusDiv) { statusDiv.textContent = "Hata: API URL'si ayarlanmamış!"; statusDiv.style.color = 'red'; }
+                 if(submitButton) submitButton.disabled = false;
+                 console.error("Hata: APPS_SCRIPT_API_URL ayarlanmamış.");
+                 return;
+            }
+
+
             try {
                 const response = await fetch(`${APPS_SCRIPT_API_URL}?studentId=${encodeURIComponent(ogrenciNo)}`);
-                if (!response.ok) { throw new Error(`API isteği başarısız: ${response.status} ${response.statusText}`); }
+                if (!response.ok) {
+                    // Sunucudan gelen hatayı yakalamaya çalışalım
+                    let errorText = response.statusText;
+                    try {
+                        // Belki sunucu JSON yerine text hatası döndürdü
+                        errorText = await response.text();
+                    } catch(e) { /* ignore text parsing error */ }
+                    throw new Error(`API isteği başarısız: ${response.status} ${errorText}`);
+                }
                 const data = await response.json();
 
                 if (data.found) {
                     if (!data.formUrl || !data.entryNo || !data.entryName || !data.entryClass) {
-                        // API'den form bilgileri gelmediyse hata ver
                          throw new Error("API yanıtında form bilgileri eksik.");
                     }
                     if(statusDiv) { statusDiv.textContent = "Öğrenci bulundu. Yönlendiriliyor..."; statusDiv.style.color = 'green'; }
 
-                    // --- GÜNCELLENDİ: Google Form linkini API'den gelen verilerle oluştur ---
+                    // Google Form linkini oluştur
                     let googleFormLink = `${data.formUrl}?` +
-                                         `${data.entryNo}=${encodeURIComponent(ogrenciNo)}` + // Öğrenci No hala input'tan alınabilir veya data'dan
+                                         `${data.entryNo}=${encodeURIComponent(ogrenciNo)}` +
                                          `&${data.entryName}=${encodeURIComponent(data.name)}` +
                                          `&${data.entryClass}=${encodeURIComponent(data.class)}`;
-                    // --- Güncelleme Sonu ---
-
                     // Yönlendir
                     window.location.href = googleFormLink;
 
@@ -88,16 +103,28 @@
                     }
                 }
             } catch (error) {
-                console.error("API Çağrı Hatası:", error);
+                // Ağ hatası, JSON parse hatası veya yukarıda fırlatılan hata
+                console.error("formYonlendir Hatası:", error);
                 if(submitButton) submitButton.disabled = false;
                 if(statusDiv) {
-                   statusDiv.textContent = "Bir hata oluştu: " + error.message;
+                   // Daha kullanıcı dostu bir mesaj gösterelim
+                   let displayError = error.message;
+                   if (error.message.toLowerCase().includes("failed to fetch")) {
+                       displayError = "API sunucusuna ulaşılamadı. Ağ bağlantınızı veya API URL'sini kontrol edin.";
+                   } else if (error.message.includes("API isteği başarısız")) {
+                       displayError = "API sunucusundan geçersiz yanıt alındı.";
+                   } else if (error.message.includes("form bilgileri eksik")) {
+                       displayError = "Sunucudan eksik veri alındı.";
+                   } else {
+                       displayError = "Beklenmedik bir hata oluştu."; // Genel hata
+                   }
+                   statusDiv.textContent = `Hata: ${displayError}`;
                    statusDiv.style.color = 'red';
                 }
             }
         }
 
-        // Enter tuşu listener (değişiklik yok)
+        // Enter tuşu listener
         ogrenciNoInput.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
@@ -105,7 +132,7 @@
             }
         });
 
-        // Sayfa yüklenince focus (değişiklik yok)
+        // Sayfa yüklenince focus
         window.onload = () => {
             if(ogrenciNoInput) ogrenciNoInput.focus();
         };
