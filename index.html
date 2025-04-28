@@ -5,95 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Öğrenci Takip Sistemi (TAKSİ)</title>
     <style>
-        /* Orijinal CSS stilleriniz buraya gelecek */
-        /* Sayfa düzeni */
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh; /* height yerine min-height */
-            margin: 0;
-            background-color: #d3d3d3; /* Gri tonlu arka plan */
-            font-family: sans-serif; /* Okunabilirlik için */
-        }
-
-        /* Üstteki logo */
-        .logo-container {
-            width: 100%;
-            text-align: center;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        .logo-container img {
-            max-width: 80%;
-            height: auto;
-            /* max-height: 150px; /* İsterseniz */
-        }
-
-        /* Form kutusu */
-        .form-container {
-            background: white;
-            padding: 30px; /* İç boşluk */
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
-        }
-
-         h3 {
-            margin-top: 0;
-            color: #333;
-         }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: bold;
-        }
-
-        input[type="text"] { /* Sadece text input */
-            width: calc(100% - 22px); /* Padding'i hesaba kat */
-            padding: 10px;
-            margin-bottom: 20px; /* Butonla arasına boşluk */
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 20px; /* Biraz daha büyük buton */
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-
-        #status { /* Durum mesajı alanı */
-            margin-top: 15px;
-            min-height: 20px;
-            font-weight: bold;
-        }
-
+        /* CSS Stilleriniz burada (değişiklik yok) */
+        /* ... */
+        body { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #d3d3d3; font-family: sans-serif; }
+        .logo-container { width: 100%; text-align: center; margin-top: 20px; margin-bottom: 20px; }
+        .logo-container img { max-width: 80%; height: auto; }
+        .form-container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); text-align: center; width: 90%; max-width: 400px; }
+        h3 { margin-top: 0; color: #333; }
+        label { display: block; margin-bottom: 5px; color: #555; font-weight: bold; }
+        input[type="text"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+        button { background-color: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; transition: background-color 0.3s ease; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        #status { margin-top: 15px; min-height: 20px; font-weight: bold; }
+        /* ... */
     </style>
 </head>
 <body>
-
     <div class="logo-container">
         <img src="https://raw.githubusercontent.com/cmtal75/ogrenci/main/11.png" alt="Okul Logosu">
     </div>
@@ -108,17 +36,11 @@
 
     <script>
         // --- Ayarlar ---
-        // 1. Adımda kopyaladığınız Apps Script Web Uygulaması URL'sini buraya yapıştırın
-        const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbxBz_l_-xIdoCy28yZHK30Urlv9YrXW7t5dg50iCFZabHVmVn-NUYK7X-vlowMrAoCQ/exec";
+        // API URL'niz burada kalacak
+        const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbwyQxQGEzOQR01zN3NmFrFVtQ6UvF9GKPax947QFPXFPjEDbD8Df8ytJYJi7JmE1gxv/exec"; // Önceki adımdaki URL
 
-        // Google Form Bilgileri
-        const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSe89-9F7I-ThCZDU_rLoW9wGtnNNXXpNz_4l0YfGQLzibKyHw/viewform';
-        const FORM_ENTRY_ID_STUDENT_NO = 'entry.2121926657';
-        const FORM_ENTRY_ID_NAME = 'entry.2116005072';
-        const FORM_ENTRY_ID_CLASS = 'entry.1635123932';
-        // --- Ayarlar Sonu ---
 
-        // HTML Elemanlarını seç
+        // HTML Elemanları (değişiklik yok)
         const ogrenciNoInput = document.getElementById("ogrenciNo");
         const submitButton = document.getElementById("submitButton");
         const statusDiv = document.getElementById("status");
@@ -129,60 +51,45 @@
         async function formYonlendir() {
             const ogrenciNo = ogrenciNoInput.value.trim();
             if (!ogrenciNo) {
-                if(statusDiv) {
-                   statusDiv.textContent = "Lütfen öğrenci numarasını giriniz.";
-                   statusDiv.style.color = 'red';
-                }
+                if(statusDiv) { statusDiv.textContent = "Lütfen öğrenci numarasını giriniz."; statusDiv.style.color = 'red'; }
                 return;
             }
 
-            // Butonu devre dışı bırak ve durum mesajını ayarla
             if(submitButton) submitButton.disabled = true;
-            if(statusDiv) {
-                statusDiv.textContent = "Kontrol ediliyor...";
-                statusDiv.style.color = 'blue';
-            }
+            if(statusDiv) { statusDiv.textContent = "Kontrol ediliyor..."; statusDiv.style.color = 'blue'; }
 
             try {
-                // Apps Script API'sine fetch isteği gönder
                 const response = await fetch(`${APPS_SCRIPT_API_URL}?studentId=${encodeURIComponent(ogrenciNo)}`);
-
-                // Yanıtın başarılı olup olmadığını kontrol et (Ağ hatası vb.)
-                if (!response.ok) {
-                    throw new Error(`API isteği başarısız: ${response.status} ${response.statusText}`);
-                }
-
-                const data = await response.json(); // Yanıtı JSON olarak al
+                if (!response.ok) { throw new Error(`API isteği başarısız: ${response.status} ${response.statusText}`); }
+                const data = await response.json();
 
                 if (data.found) {
-                    // Öğrenci bulundu
-                    if(statusDiv) {
-                        statusDiv.textContent = "Öğrenci bulundu. Yönlendiriliyor...";
-                        statusDiv.style.color = 'green';
+                    if (!data.formUrl || !data.entryNo || !data.entryName || !data.entryClass) {
+                        // API'den form bilgileri gelmediyse hata ver
+                         throw new Error("API yanıtında form bilgileri eksik.");
                     }
+                    if(statusDiv) { statusDiv.textContent = "Öğrenci bulundu. Yönlendiriliyor..."; statusDiv.style.color = 'green'; }
 
-                    // Google Form linkini oluştur
-                    let googleFormLink = `${FORM_URL}?` +
-                                         `${FORM_ENTRY_ID_STUDENT_NO}=${encodeURIComponent(ogrenciNo)}` +
-                                         `&${FORM_ENTRY_ID_NAME}=${encodeURIComponent(data.name)}` +
-                                         `&${FORM_ENTRY_ID_CLASS}=${encodeURIComponent(data.class)}`;
+                    // --- GÜNCELLENDİ: Google Form linkini API'den gelen verilerle oluştur ---
+                    let googleFormLink = `${data.formUrl}?` +
+                                         `${data.entryNo}=${encodeURIComponent(ogrenciNo)}` + // Öğrenci No hala input'tan alınabilir veya data'dan
+                                         `&${data.entryName}=${encodeURIComponent(data.name)}` +
+                                         `&${data.entryClass}=${encodeURIComponent(data.class)}`;
+                    // --- Güncelleme Sonu ---
 
                     // Yönlendir
                     window.location.href = googleFormLink;
-                    // Yönlendirme sonrası butonun durumunu yönetmeye gerek yok genelde.
 
                 } else {
-                    // Öğrenci bulunamadı veya API hatası
-                    if(submitButton) submitButton.disabled = false; // Butonu tekrar aktif et
+                    if(submitButton) submitButton.disabled = false;
                     if(statusDiv) {
                        statusDiv.textContent = data.error ? `Hata: ${data.error}` : "Öğrenci bulunamadı!";
                        statusDiv.style.color = 'red';
                     }
                 }
             } catch (error) {
-                // Ağ hatası veya JSON parse hatası
                 console.error("API Çağrı Hatası:", error);
-                if(submitButton) submitButton.disabled = false; // Butonu tekrar aktif et
+                if(submitButton) submitButton.disabled = false;
                 if(statusDiv) {
                    statusDiv.textContent = "Bir hata oluştu: " + error.message;
                    statusDiv.style.color = 'red';
@@ -190,15 +97,15 @@
             }
         }
 
-        // Enter tuşuna basıldığında da formu göndermeyi sağla
+        // Enter tuşu listener (değişiklik yok)
         ogrenciNoInput.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
-                event.preventDefault(); // Formun varsayılan gönderimini engelle
-                if(submitButton) submitButton.click(); // Butona tıklama olayını tetikle
+                event.preventDefault();
+                if(submitButton) submitButton.click();
             }
         });
 
-        // Sayfa yüklendiğinde input alanına odaklan
+        // Sayfa yüklenince focus (değişiklik yok)
         window.onload = () => {
             if(ogrenciNoInput) ogrenciNoInput.focus();
         };
