@@ -40,6 +40,8 @@
         // !!!!!!! KENDİ APPS SCRIPT WEB UYGULAMASI URL'NİZİ BURAYA YAPIŞTIRIN !!!!!!!
         const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbwyQxQGEzOQR01zN3NmFrFVtQ6UvF9GKPax947QFPXFPjEDbD8Df8ytJYJi7JmE1gxv/exec";
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // Not: Form URL ve ID'leri artık API'den alınacak, burada tanımlamaya gerek yok.
+        // --- Ayarlar Sonu ---
 
         // HTML Elemanları
         const ogrenciNoInput = document.getElementById("ogrenciNo");
@@ -59,55 +61,60 @@
             if(submitButton) submitButton.disabled = true;
             if(statusDiv) { statusDiv.textContent = "Kontrol ediliyor..."; statusDiv.style.color = 'blue'; }
 
-            // API URL'sinin yer tutucu olup olmadığını kontrol et
-            if (APPS_SCRIPT_API_URL === "https://script.google.com/macros/s/AKfycbwyQxQGEzOQR01zN3NmFrFVtQ6UvF9GKPax947QFPXFPjEDbD8Df8ytJYJi7JmE1gxv/exec") {
+            // API URL'sinin yer tutucu olup olmadığını kontrol et (ÖNEMLİ GÜVENLİK KONTROLÜ)
+            if (APPS_SCRIPT_API_URL === "https://script.google.com/macros/s/AKfycbwyQxQGEzOQR01zN3NmFrFVtQ6UvF9GKPax947QFPXFPjEDbD8Df8ytJYJi7JmE1gxv/exec" || !APPS_SCRIPT_API_URL) {
                  if(statusDiv) { statusDiv.textContent = "Hata: API URL'si ayarlanmamış!"; statusDiv.style.color = 'red'; }
                  if(submitButton) submitButton.disabled = false;
                  console.error("Hata: APPS_SCRIPT_API_URL ayarlanmamış.");
-                 return;
+                 return; // URL ayarlanmamışsa işlemi durdur
             }
 
 
             try {
+                // Apps Script API'sine fetch isteği gönder
                 const response = await fetch(`${APPS_SCRIPT_API_URL}?studentId=${encodeURIComponent(ogrenciNo)}`);
+
+                // Yanıtın başarılı olup olmadığını kontrol et
                 if (!response.ok) {
-                    // Sunucudan gelen hatayı yakalamaya çalışalım
                     let errorText = response.statusText;
                     try {
-                        // Belki sunucu JSON yerine text hatası döndürdü
-                        errorText = await response.text();
+                        errorText = await response.text(); // Sunucudan gelen hata metnini almaya çalış
                     } catch(e) { /* ignore text parsing error */ }
                     throw new Error(`API isteği başarısız: ${response.status} ${errorText}`);
                 }
+
+                // Yanıtı JSON olarak al
                 const data = await response.json();
 
                 if (data.found) {
+                    // Öğrenci bulundu, API'den gelen form bilgilerini kontrol et
                     if (!data.formUrl || !data.entryNo || !data.entryName || !data.entryClass) {
-                         throw new Error("API yanıtında form bilgileri eksik.");
+                         throw new Error("API yanıtında form bilgileri eksik."); // Gerekli bilgiler yoksa hata ver
                     }
                     if(statusDiv) { statusDiv.textContent = "Öğrenci bulundu. Yönlendiriliyor..."; statusDiv.style.color = 'green'; }
 
-                    // Google Form linkini oluştur
+                    // Google Form linkini API'den gelen verilerle oluştur
                     let googleFormLink = `${data.formUrl}?` +
-                                         `${data.entryNo}=${encodeURIComponent(ogrenciNo)}` +
+                                         `${data.entryNo}=${encodeURIComponent(ogrenciNo)}` + // Öğrenci No hala input'tan alınabilir veya data'dan (API'ye bağlı)
                                          `&${data.entryName}=${encodeURIComponent(data.name)}` +
                                          `&${data.entryClass}=${encodeURIComponent(data.class)}`;
                     // Yönlendir
                     window.location.href = googleFormLink;
 
                 } else {
-                    if(submitButton) submitButton.disabled = false;
+                    // Öğrenci bulunamadı veya API'den hata döndü
+                    if(submitButton) submitButton.disabled = false; // Butonu tekrar aktif et
                     if(statusDiv) {
                        statusDiv.textContent = data.error ? `Hata: ${data.error}` : "Öğrenci bulunamadı!";
                        statusDiv.style.color = 'red';
                     }
                 }
             } catch (error) {
-                // Ağ hatası, JSON parse hatası veya yukarıda fırlatılan hata
+                // Ağ hatası, JSON parse hatası veya diğer hatalar
                 console.error("formYonlendir Hatası:", error);
-                if(submitButton) submitButton.disabled = false;
+                if(submitButton) submitButton.disabled = false; // Butonu tekrar aktif et
                 if(statusDiv) {
-                   // Daha kullanıcı dostu bir mesaj gösterelim
+                   // Daha kullanıcı dostu bir hata mesajı
                    let displayError = error.message;
                    if (error.message.toLowerCase().includes("failed to fetch")) {
                        displayError = "API sunucusuna ulaşılamadı. Ağ bağlantınızı veya API URL'sini kontrol edin.";
@@ -116,7 +123,7 @@
                    } else if (error.message.includes("form bilgileri eksik")) {
                        displayError = "Sunucudan eksik veri alındı.";
                    } else {
-                       displayError = "Beklenmedik bir hata oluştu."; // Genel hata
+                       displayError = "Beklenmedik bir hata oluştu.";
                    }
                    statusDiv.textContent = `Hata: ${displayError}`;
                    statusDiv.style.color = 'red';
