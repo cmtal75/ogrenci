@@ -5,12 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Öğrenci Takip Sistemi (TAKSİ)</title>
     <style>
-        /* Sayfa düzeni */
         body { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #d3d3d3; font-family: sans-serif; }
-        /* Üstteki logo */
         .logo-container { width: 100%; text-align: center; margin-top: 20px; margin-bottom: 20px; }
         .logo-container img { max-width: 80%; height: auto; }
-        /* Form kutusu */
         .form-container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); text-align: center; width: 90%; max-width: 400px; }
         h3 { margin-top: 0; color: #333; }
         label { display: block; margin-bottom: 5px; color: #555; font-weight: bold; }
@@ -35,21 +32,10 @@
     </div>
 
     <script>
-        // --- Ayarlar ---
-        // !!!!!!! KENDİ APPS SCRIPT WEB UYGULAMASI URL'NİZİ BURAYA YAPIŞTIRIN !!!!!!!
         const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbzq4ptzYScXQ6UFt5xKcjS6dZeAvFqP29cWpIK-acas9uoYfm_zD7nr8kf_ZamDt8E/exec";
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // Not: Form URL ve ID'leri artık API'den alınacak, burada tanımlamaya gerek yok.
-        // --- Ayarlar Sonu ---
-
-        // HTML Elemanları
         const ogrenciNoInput = document.getElementById("ogrenciNo");
         const submitButton = document.getElementById("submitButton");
         const statusDiv = document.getElementById("status");
-
-        /**
-         * Butona tıklandığında Apps Script API'sini çağırır.
-         */
         async function formYonlendir() {
             const ogrenciNo = ogrenciNoInput.value.trim();
             if (!ogrenciNo) {
@@ -59,61 +45,48 @@
 
             if(submitButton) submitButton.disabled = true;
             if(statusDiv) { statusDiv.textContent = "Kontrol ediliyor..."; statusDiv.style.color = 'blue'; }
-
-            // API URL'sinin yer tutucu olup olmadığını kontrol et (ÖNEMLİ GÜVENLİK KONTROLÜ)
            if (APPS_SCRIPT_API_URL === "BURAYA_APPS_SCRIPT_API_URL_YAPIŞTIRIN" || !APPS_SCRIPT_API_URL) {
                  if(statusDiv) { statusDiv.textContent = "Hata: API URL'si ayarlanmamış!"; statusDiv.style.color = 'red'; }
                  if(submitButton) submitButton.disabled = false;
                  console.error("Hata: APPS_SCRIPT_API_URL ayarlanmamış.");
-                 return; // URL ayarlanmamışsa işlemi durdur
+                 return; 
             }
 
 
             try {
-                // Apps Script API'sine fetch isteği gönder
                 const response = await fetch(`${APPS_SCRIPT_API_URL}?studentId=${encodeURIComponent(ogrenciNo)}`);
-
-                // Yanıtın başarılı olup olmadığını kontrol et
                 if (!response.ok) {
                     let errorText = response.statusText;
                     try {
-                        errorText = await response.text(); // Sunucudan gelen hata metnini almaya çalış
-                    } catch(e) { /* ignore text parsing error */ }
+                        errorText = await response.text();
+                    } catch(e) { 
                     throw new Error(`API isteği başarısız: ${response.status} ${errorText}`);
                 }
-
-                // Yanıtı JSON olarak al
                 const data = await response.json();
 
                 if (data.found) {
-                    // Öğrenci bulundu, API'den gelen form bilgilerini kontrol et
+                   
                     if (!data.formUrl || !data.entryNo || !data.entryName || !data.entryClass) {
-                         throw new Error("API yanıtında form bilgileri eksik."); // Gerekli bilgiler yoksa hata ver
+                         throw new Error("API yanıtında form bilgileri eksik."); 
                     }
                     if(statusDiv) { statusDiv.textContent = "Öğrenci bulundu. Yönlendiriliyor..."; statusDiv.style.color = 'green'; }
-
-                    // Google Form linkini API'den gelen verilerle oluştur
                     let googleFormLink = `${data.formUrl}?` +
-                                         `${data.entryNo}=${encodeURIComponent(ogrenciNo)}` + // Öğrenci No hala input'tan alınabilir veya data'dan (API'ye bağlı)
+                                         `${data.entryNo}=${encodeURIComponent(ogrenciNo)}` + 
                                          `&${data.entryName}=${encodeURIComponent(data.name)}` +
                                          `&${data.entryClass}=${encodeURIComponent(data.class)}`;
-                    // Yönlendir
                     window.location.href = googleFormLink;
 
                 } else {
-                    // Öğrenci bulunamadı veya API'den hata döndü
-                    if(submitButton) submitButton.disabled = false; // Butonu tekrar aktif et
+                    if(submitButton) submitButton.disabled = false;
                     if(statusDiv) {
                        statusDiv.textContent = data.error ? `Hata: ${data.error}` : "Öğrenci bulunamadı!";
                        statusDiv.style.color = 'red';
                     }
                 }
             } catch (error) {
-                // Ağ hatası, JSON parse hatası veya diğer hatalar
                 console.error("formYonlendir Hatası:", error);
-                if(submitButton) submitButton.disabled = false; // Butonu tekrar aktif et
+                if(submitButton) submitButton.disabled = false;
                 if(statusDiv) {
-                   // Daha kullanıcı dostu bir hata mesajı
                    let displayError = error.message;
                    if (error.message.toLowerCase().includes("failed to fetch")) {
                        displayError = "API sunucusuna ulaşılamadı. Ağ bağlantınızı veya API URL'sini kontrol edin.";
@@ -129,16 +102,12 @@
                 }
             }
         }
-
-        // Enter tuşu listener
         ogrenciNoInput.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
                 if(submitButton) submitButton.click();
             }
         });
-
-        // Sayfa yüklenince focus
         window.onload = () => {
             if(ogrenciNoInput) ogrenciNoInput.focus();
         };
